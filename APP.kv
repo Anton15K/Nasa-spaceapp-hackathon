@@ -1,0 +1,33 @@
+#:kivy 1.4.0
+ScreenManager:
+    Main:
+    Load_img:
+<Main>:
+    name:"main"
+
+    BoxLayout:
+        id:main
+        orientation:'vertical'
+        size: root.width, root.height
+        spacing: '10dp'
+        Label:
+            text:"Dora's app"
+        Button:
+            id: load_img
+            text: "Load_img"
+            on_release: root.manager.current ="Load_img"
+        TextInput:
+            id:img
+            hint_text:"location"
+        Button:
+            id:Submit
+            text:"Submit"
+            on_release: root.get_name(root.ids.img.text)
+
+<Load_img>:
+    name:"Load_img"
+    BoxLayout:
+        orientation:'vertical'
+        spacing: '10dp'
+        id:main
+
