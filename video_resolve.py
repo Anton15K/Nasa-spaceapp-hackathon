@@ -1,10 +1,33 @@
 import cv2
 import numpy as np
 import time
+
+def convert_to_sound(pixels_to_convert):
+    pass
+
+def bresenham_line(x0, y0, x1, y1):
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    sx = 1 if x0 < x1 else -1
+    sy = 1 if y0 < y1 else -1
+    err = dx - dy
+    result = []
+    while x0 != x1 or y0 != y1:
+        result.append((x0, y0))
+        e2 = 2 * err
+        if e2 > -dy:
+            err -= dy
+            x0 += sx
+        if e2 < dx:
+            err += dx
+            y0 += sy
+    result.append((x1, y1))
+    return result
 def resolve_video(video_path):
     # Open the video file
     cap = cv2.VideoCapture(video_path)
-
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     # Get the number of frames in the video
     num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -35,26 +58,43 @@ def resolve_video(video_path):
     center_point = (center_x, center_y)
 
     print("Center point:", center_point)
-    i = 0
+    # line colour parametres
+    R_colour = 0
+    G_colour = 255
+    B_colour = 0
+
+    prev_x = 0
+    prev_y = 0
+    sz = frame_height + frame_width
+    c = sz // frame_count + 1
+    if frame_count >= sz:
+        c = frame_count // sz
     # Loop through each frame in the video array and draw a circle on the center pixel
     for frame in video_array:
-        for i in range(center_x):
+        for i in range(prev_x, min(prev_x + c, frame_width)):
         # Draw a circle on the center pixel of the frame
-            cv2.circle(frame, center_point, 1, (0, 0, 255), -1)
+            #cv2.circle(frame, center_point, 1, (0, 0, 255), -1)
 
             # Draw a line from the center point to each corner pixel of the frame
-            cv2.line(frame, center_point, (center_x-i, 0), (0, 255, 0), 1)
+            cv2.line(frame, (i, frame_height), (frame_width-i, 0), (R_colour, G_colour, B_colour), 1)
+            convert_to_sound(bresenham_line(i, frame_height, frame_width-i, 0))
             cv2.imshow("Frame", frame)
             cv2.waitKey(1)
-        for i in range(center_y):
-            cv2.line(frame, center_point, (0, 0+i), (0, 255, 0), 1)
+        prev_x += c
+        if prev_x < frame_width:
+            continue
+        for i in range(prev_y, min(prev_y + c, frame_height)):
+            cv2.line(frame, (frame_width, frame_height-i), (0, 0+i), (R_colour, G_colour, B_colour), 1)
             
             #cv2.line(frame, center_point, (center_x-i, 0), (0, 0, 0), 1)
         
             cv2.imshow("Frame", frame)
             cv2.waitKey(1)
-        
-
+        prev_y += c
+        if prev_y < frame_height:
+            continue
+        else:
+            break
     return video_array
 
 
@@ -113,4 +153,4 @@ def show_video(video_path):
         
 
     return video_array
-print(resolve_video("images/saturn.mp4"))
+print(resolve_video("images/Hydra.mp4"))
