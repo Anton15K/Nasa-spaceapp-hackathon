@@ -1,11 +1,8 @@
 #:kivy 1.4.0
 ScreenManager:
     Main:
-
-
 <Main>:
     name:"main"
-
     BoxLayout:
         id:main
         orientation:'vertical'
@@ -19,7 +16,7 @@ ScreenManager:
             on_release: root.play_video()
         TextInput:
             id:vid
-            hint_text:"location"
+            hint_text:"video name i.e. video.mp4"
         Button:
             id:Submit
             text:"Submit"

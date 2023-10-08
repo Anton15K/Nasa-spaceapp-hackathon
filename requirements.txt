@@ -1,2 +1,5 @@
 kivy
 opencv-python
+wavio
+numpy
+moviepy

@@ -41,14 +41,14 @@ def process_lines(result, line, frame):
     result[0] += average_r
     result[1] += average_g
     result[2] += average_b
-    #print(average_r, average_g, average_b)
+
     return result
 def convert_to_sound(pixels_to_convert):
-    print(pixels_to_convert)
+
     red, green, blue = pixels_to_convert  # get pixel RGB value
     luminosity = (red + green + blue) // 3 # calculate brightness
-    # Print the luminosity value
-    print(luminosity)
+
+
 
     # Calculate the index of the note to play based on the luminosity value
     index = ((luminosity + 50) % 256) // 9
@@ -87,8 +87,8 @@ def convert_to_sound(pixels_to_convert):
     # Add the waveform to the list of audio data
     audio_data.append(signal)
 
-    # Define a function to generate a list of pixels along a line between two points using Bresenham's line algorithm
-    def bresenham_line(x0, y0, x1, y1):
+# Define a function to generate a list of pixels along a line between two points using Bresenham's line algorithm
+def bresenham_line(x0, y0, x1, y1):
         result = []
         for i in range(x0, x1 + 1):
             result.append((i, y0))
@@ -100,15 +100,9 @@ def convert_to_sound(pixels_to_convert):
                 result.append((x1, i))
         return result
 
-    # Define a function to process the pixels along a line and update the average color for the frame
-    def process_lines(average_colour_for_frame, line, frame):
-        for x, y in line:
-            average_colour_for_frame[0] += frame[y, x, 0]
-            average_colour_for_frame[1] += frame[y, x, 1]
-            average_colour_for_frame[2] += frame[y, x, 2]
 
-    # Define a function to resolve a video file into audio and visual components
-    def resolve_video(video_path):
+# Define a function to resolve a video file into audio and visual components
+def resolve_video(video_path):
         # Open the video file
         cap = cv2.VideoCapture(video_path)
         fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -140,7 +134,7 @@ def convert_to_sound(pixels_to_convert):
         center_y = frame_height // 2
         center_point = (center_x, center_y)
 
-        print("Center point:", center_point)
+
 
         # Define the color of the lines to draw
         R_colour = 0
@@ -151,7 +145,7 @@ def convert_to_sound(pixels_to_convert):
         coord = 0
         sz = frame_height + frame_width
         c = sz // frame_count + 1
-        print(frame_count, sz, c, fps)
+
 
         average_colour_for_second = [0, 0, 0]
         number_of_used_lines = 0
@@ -210,6 +204,6 @@ def convert_to_sound(pixels_to_convert):
         # Save the audio data to a .wav file
         wavio.write("sounds/out.wav", audio_data, RATE)
 
-    # Define a function to run the video resolution process
-    def run(video_path):
-        resolve_video(video_path)
+# Define a function to run the video resolution process
+def run(video_path):
+    resolve_video(video_path)
