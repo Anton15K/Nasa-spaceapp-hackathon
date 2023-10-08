@@ -1,7 +1,10 @@
 import cv2
 import numpy as np
+import wavio
 import time
-from psonic import *
+
+##### define  musical parameters
+scale = MIXOLYDIAN_SCALE
 
 minPitch = 0  # MIDI pitch (0-127)
 maxPitch = 127
@@ -34,27 +37,25 @@ def process_lines(result, line, frame):
     #print(average_r, average_g, average_b)
     return result
 def convert_to_sound(pixels_to_convert):
-    #print(pixels_to_convert)
+    print(pixels_to_convert)
     red, green, blue = pixels_to_convert  # get pixel RGB value
 
     luminosity = (red + green + blue) / 3  # calculate brightness
 
     # map luminosity to pitch (the brighter the pixel, the higher
     # the pitch) using specified scale
-    #pitch = mapScale(luminosity, 0, 255, minPitch, maxPitch, scale)
-    pitch = maxPitch*luminosity//255
-    
+    pitch = mapScale(luminosity, 0, 255, minPitch, maxPitch, scale)
 
     # map red value to duration (the redder the pixel, the longer
     # the note)
-    duration = 1
+    #duration = mapValue(red, 0, 255, minDuration, maxDuration)
 
     # map blue value to dynamic (the bluer the pixel, the louder
     # the note)
-    dynamic = blue*maxVolume//255
+    #dynamic = mapValue(blue, 0, 255, minVolume, maxVolume)
 
     # create note and return it to caller
-    note = play(pitch, duration, dynamic)
+    #note = Note(pitch, duration, dynamic)
 
     # done sonifying this pixel, so return result'''
 def bresenham_line(x0, y0, x1, y1):
@@ -161,7 +162,7 @@ def resolve_video(video_path):
                     average_colour_for_second[0] //= fps
                     average_colour_for_second[1] //= fps
                     average_colour_for_second[2] //= fps
-                    print(number_of_used_lines)
+                    #print(number_of_used_lines)
                     convert_to_sound(average_colour_for_second)
                     average_colour_for_second = [0, 0, 0]
                     a += 1
@@ -182,7 +183,7 @@ def resolve_video(video_path):
                 average_colour_for_second[0] //= fps
                 average_colour_for_second[1] //= fps
                 average_colour_for_second[2] //= fps
-                print(number_of_used_lines)
+                #print(number_of_used_lines)
                 convert_to_sound(average_colour_for_second)
                 average_colour_for_second = [0, 0, 0]
                 a += 1
@@ -202,6 +203,15 @@ def resolve_video(video_path):
                 prev_x = 0
                 prev_y = 0
         print(a)
+        global audio_data
+        # Concatenate all the small signals into one signal
+        audio_data = np.hstack(audio_data)
+
+        # Normalize the audio data to 16-bit PCM
+        audio_data = (audio_data * (2 ** 15 - 1)).astype(np.int16)
+
+        # Save the audio data to a .wav file
+        wavio.write("smooth_audio_v2.wav", audio_data, RATE)
         out.release()
 
-resolve_video("images/saturn.mp4")
+resolve_video("images/Hydra.mp4")
