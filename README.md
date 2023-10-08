@@ -9,7 +9,7 @@ Clone the repository: git clone [insert repository URL here]
 Install the required dependencies: pip install -r requirements.txt
 # Usage
 Navigate to the project directory: cd [insert project directory here]
-Run the script: python combine_video.py
+Run the script: python interface.py
 Follow the on-screen instructions to combine a video and audio file
 Contributing
 Contributions are welcome! Please submit a pull request or open an issue if you encounter any bugs or have any suggestions for improvement.
