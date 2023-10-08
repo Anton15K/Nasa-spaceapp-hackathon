@@ -13,6 +13,11 @@ brightnesses = []
 
 # C4 Major Scale Frequencies
 C4_MAJOR_SCALE = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]
+pq = 100
+while pq < 500:
+    C4_MAJOR_SCALE.append(pq)
+    pq += 23.78
+C4_MAJOR_SCALE = sorted(C4_MAJOR_SCALE)
 def create_video(out):
     pass
 def process_lines(result, line, frame):
@@ -40,7 +45,7 @@ def convert_to_sound(pixels_to_convert):
     red, green, blue = pixels_to_convert  # get pixel RGB value
     luminosity = (red + green + blue) // 3  # calculate brightness
     print(luminosity)
-    index = luminosity // 16
+    index = luminosity // 4
     freq = C4_MAJOR_SCALE[index]
 
     # Calculate a duration so that the waveform ends near a zero crossing
@@ -60,26 +65,19 @@ def convert_to_sound(pixels_to_convert):
     signal *= fade
 
     # Apply amplitude
-    signal *= AMPLITUDE
+    signal *= (blue / 255)
 
     audio_data.append(signal)
 def bresenham_line(x0, y0, x1, y1):
-    dx = abs(x1 - x0)
-    dy = abs(y1 - y0)
-    sx = 1 if x0 < x1 else -1
-    sy = 1 if y0 < y1 else -1
-    err = dx - dy
     result = []
-    while x0 != x1 or y0 != y1:
-        result.append((x0, y0))
-        e2 = 2 * err
-        if e2 > -dy:
-            err -= dy
-            x0 += sx
-        if e2 < dx:
-            err += dx
-            y0 += sy
-    result.append((x1, y1))
+    for i in range(x0, x1 + 1):
+        result.append((i, y0))
+        if y0 != y1:
+            result.append((i, y1))
+    for i in range(y0 + 1, y1):
+        result.append((x0, i))
+        if x0 != x1:
+            result.append((x1, i))
     return result
 def resolve_video(video_path):
     # Open the video file
@@ -121,9 +119,7 @@ def resolve_video(video_path):
     G_colour = 255
     B_colour = 0
 
-    prev_x = 0
-    prev_y = 0
-
+    coord = 0
     sz = frame_height + frame_width
     c = sz // frame_count + 1
     print(frame_count, sz, c, fps)
@@ -141,17 +137,17 @@ def resolve_video(video_path):
         for frame in video_array:
             number_of_used_lines += 1
             average_colour_for_frame = [0, 0, 0]
-            for i in range(prev_x, min(prev_x + c, frame_width)):
+            for i in range(c):
             # Draw a circle on the center pixel of the frame
                 #cv2.circle(frame, center_point, 1, (0, 0, 255), -1)
 
                 # Draw a line from the center point to each corner pixel of the frame
-                x0 = i
-                y0 = frame_height - 1
-                x1 = frame_width-i-1
-                y1 = 0
+                x0 = coord * 16
+                y0 = coord * 9
+                x1 = frame_width-coord * 16 -1
+                y1 = frame_height - coord * 9 - 1
                 process_lines(average_colour_for_frame, bresenham_line(x0, y0, x1, y1), frame)
-                cv2.line(frame, (x0, y0), (x1, y1), (R_colour, G_colour, B_colour), 1)
+                cv2.rectangle(frame, (x0, y0), (x1, y1), (R_colour, G_colour, B_colour), 1)
                 '''or el in bresenham_line(x0, y0, x1, y1):
                     print(el[0], el[1])'''
                 '''cv2.imshow("Frame", frame)
@@ -159,31 +155,8 @@ def resolve_video(video_path):
             average_colour_for_second[0] += average_colour_for_frame[0] // c
             average_colour_for_second[1] += average_colour_for_frame[1] // c
             average_colour_for_second[2] += average_colour_for_frame[2] // c
-            prev_x += c
-            if prev_x < frame_width:
-                '''cv2.imshow("Frame", frame)
-                cv2.waitKey(1000//fps)'''
-                if number_of_used_lines % fps == 0:
-                    average_colour_for_second[0] //= fps
-                    average_colour_for_second[1] //= fps
-                    average_colour_for_second[2] //= fps
-                    #print(number_of_used_lines)
-                    convert_to_sound(average_colour_for_second)
-                    average_colour_for_second = [0, 0, 0]
-                    a += 1
-                out.write(frame)
-                continue
-            for i in range(prev_y, min(prev_y + c, frame_height)):
-                x0 = frame_width - 1
-                y0 = frame_height - i - 1
-                x1 = 0
-                y1 = i
-                process_lines(average_colour_for_frame, bresenham_line(x0, y0, x1, y1), frame)
-                cv2.line(frame, (x0, y0), (x1, y1), (R_colour, G_colour, B_colour), 1)
-                #cv2.line(frame, center_point, (center_x-i, 0), (0, 0, 0), 1)
-            average_colour_for_second[0] += average_colour_for_frame[0] // c
-            average_colour_for_second[1] += average_colour_for_frame[1] // c
-            average_colour_for_second[2] += average_colour_for_frame[2] // c
+            coord += 1
+            coord %= 40
             if number_of_used_lines % fps == 0:
                 average_colour_for_second[0] //= fps
                 average_colour_for_second[1] //= fps
@@ -192,21 +165,11 @@ def resolve_video(video_path):
                 convert_to_sound(average_colour_for_second)
                 average_colour_for_second = [0, 0, 0]
                 a += 1
-            '''cv2.imshow("Frame", frame)
-            cv2.waitKey(1000//fps)'''
             out.write(frame)
 
             # Release the VideoWriter object
 
             # Print the output video path
-            
-
-            prev_y += c
-            if prev_y < frame_height:
-                continue
-            else:
-                prev_x = 0
-                prev_y = 0
         print(a)
         global audio_data
         # Concatenate all the small signals into one signal
