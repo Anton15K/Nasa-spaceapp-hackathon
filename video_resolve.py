@@ -1,9 +1,7 @@
 import cv2
 import numpy as np
 import time
-
-##### define  musical parameters
-scale = MIXOLYDIAN_SCALE
+from psonic import *
 
 minPitch = 0  # MIDI pitch (0-127)
 maxPitch = 127
@@ -43,18 +41,20 @@ def convert_to_sound(pixels_to_convert):
 
     # map luminosity to pitch (the brighter the pixel, the higher
     # the pitch) using specified scale
-    pitch = mapScale(luminosity, 0, 255, minPitch, maxPitch, scale)
+    #pitch = mapScale(luminosity, 0, 255, minPitch, maxPitch, scale)
+    pitch = maxPitch*luminosity//255
+    
 
     # map red value to duration (the redder the pixel, the longer
     # the note)
-    #duration = mapValue(red, 0, 255, minDuration, maxDuration)
+    duration = 1
 
     # map blue value to dynamic (the bluer the pixel, the louder
     # the note)
-    #dynamic = mapValue(blue, 0, 255, minVolume, maxVolume)
+    dynamic = blue*maxVolume//255
 
     # create note and return it to caller
-    #note = Note(pitch, duration, dynamic)
+    note = play(pitch, duration, dynamic)
 
     # done sonifying this pixel, so return result'''
 def bresenham_line(x0, y0, x1, y1):
@@ -204,4 +204,4 @@ def resolve_video(video_path):
         print(a)
         out.release()
 
-resolve_video("images/Hydra.mp4")
+resolve_video("images/saturn.mp4")
