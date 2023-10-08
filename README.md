@@ -17,6 +17,9 @@ Contributions are welcome! Please submit a pull request or open an issue if you 
 # Lisence
 See LICENSE
 
+# Link to our presentation
+https://docs.google.com/presentation/d/1MGWsgDDnIvz73OTbo1SKh8Aub2SP2RrYmGpcCgrfDA4/edit?usp=sharing
+
 # CREDITS
 Our mentors:
 Dr. Elena Lyalkova,
