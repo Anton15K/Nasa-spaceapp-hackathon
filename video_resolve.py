@@ -3,10 +3,13 @@ import numpy as np
 import wavio
 import time
 
+
+
 # Constants
 RATE = 44100  # Sample rate (samples/second)
 AMPLITUDE = 0.5  # Constant amplitude
 FADE_DURATION = 0.1  # 100ms fade in and fade out
+
 
 audio_data = []
 brightnesses = []
@@ -52,22 +55,20 @@ def convert_to_sound(pixels_to_convert):
     samples_per_wave = RATE / freq
     total_samples = int(samples_per_wave * np.round(RATE * 1 / samples_per_wave))
 
-    # Generate the signal
     t = np.linspace(0, total_samples / RATE, total_samples, endpoint=False)
     signal = np.sin(2 * np.pi * freq * t)
 
-    # Apply fade-in and fade-out
     fade_in = np.linspace(0, 1, int(FADE_DURATION * RATE))
     fade_out = np.linspace(1, 0, int(FADE_DURATION * RATE))
     fade = np.ones_like(signal)
     fade[:len(fade_in)] = fade_in
     fade[-len(fade_out):] = fade_out
     signal *= fade
-
     # Apply amplitude
     signal *= (blue / 255)
-
+    signal *= AMPLITUDE
     audio_data.append(signal)
+
 def bresenham_line(x0, y0, x1, y1):
     result = []
     for i in range(x0, x1 + 1):
@@ -182,4 +183,7 @@ def resolve_video(video_path):
         wavio.write("smooth_audio_v2.wav", audio_data, RATE)
         out.release()
 
-resolve_video("images/cosmic_reef.mp4")
+
+resolve_video("images/saturn.mp4")
+
+
