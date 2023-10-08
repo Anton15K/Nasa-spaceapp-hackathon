@@ -30,7 +30,7 @@ class Main(Screen):
             time.sleep(1)
             self.ids.vid.hint_text = "Video was added to load, please wait..."
             video_resolve.run(f"videos{sp}{vid}")
-            self.ids.vid.hint_text = "Video was loaded, click load_image to continue"
+            self.ids.vid.hint_text = "Video was loaded, click load_vid to continue"
         except:
             self.ids.vid.hint_text = "Something went wrong"
     def play_video(self):
