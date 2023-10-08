@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import wavio
 import time
-
+import os
 
 
 # Constants
@@ -133,8 +133,9 @@ def resolve_video(video_path):
         #c = frame_count // sz
     # Loop through each frame in the video array and draw a circle on the center pixel
     else:
+        sp = os.path.sep
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        out = cv2.VideoWriter('output.mp4', fourcc, 30.0, (frame_width, frame_height))
+        out = cv2.VideoWriter(f'videos{sp}output.mp4', fourcc, 30.0, (frame_width, frame_height))
         for frame in video_array:
             number_of_used_lines += 1
             average_colour_for_frame = [0, 0, 0]
@@ -180,10 +181,10 @@ def resolve_video(video_path):
         audio_data = (audio_data * (2 ** 15 - 1)).astype(np.int16)
 
         # Save the audio data to a .wav file
-        wavio.write("smooth_audio_v2.wav", audio_data, RATE)
+        wavio.write("sounds/out.wav", audio_data, RATE)
         out.release()
 
-
-resolve_video("images/saturn.mp4")
+def run(video_path):
+    resolve_video(video_path)
 
 

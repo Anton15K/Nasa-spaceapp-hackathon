@@ -18,6 +18,7 @@ from moviepy.editor import *
 import cv2
 import os
 import run_video
+import video_resolve
 #import video_resolve
 sp = os.path.sep
 
@@ -25,14 +26,13 @@ class Main(Screen):
     def get_name(self, vid):
         self.ids.vid.text = ""
         try:
-            with open("path.txt", "w") as f:
-                f.write(vid)
+            video_resolve.run(f"videos{sp}{vid}")
             self.ids.vid.hint_text = "Video was added to load, click load_image to continue"
             #video_resolve.show_video(vid)
         except:
             self.ids.vid.hint_text = "Something went wrong"
     def play_video(self):
-        run_video()
+        run_video.result_video()
 
 
 

@@ -4,8 +4,8 @@ import os
 
 def combine(vid, music):
     sp = os.path.sep
-    video = VideoFileClip(f"images{sp}{vid}")
-    audio = AudioFileClip(f"images{sp}{music}")
+    video = VideoFileClip(f"{vid}")
+    audio = AudioFileClip(f"{music}")
 
     # Set the audio of the video file to the loaded audio file
     video = video.set_audio(audio)

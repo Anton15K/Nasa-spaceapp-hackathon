@@ -1,8 +1,8 @@
-import combine_sound
-import combine_video
 
+import combine_video
+import os
 def result_video():
-    sounds = get_sounds()
-    video_name = get_video()
-    combine_sound(sounds)
-    combine_video(video_name, "combined.mp3")
+    sp = os.path.sep
+    sounds = f"sounds{sp}out.wav"
+    video_name = f"videos{sp}output.mp4"
+    combine_video.combine(video_name, sounds)
