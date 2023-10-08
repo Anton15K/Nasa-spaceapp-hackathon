@@ -224,5 +224,4 @@ def resolve_video(video_path):
 
 resolve_video("images/saturn.mp4")
 
-resolve_video("images/cosmic_reef.mp4")
 
