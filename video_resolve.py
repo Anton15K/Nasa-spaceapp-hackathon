@@ -47,100 +47,120 @@ def convert_to_sound(pixels_to_convert):
     print(pixels_to_convert)
     red, green, blue = pixels_to_convert  # get pixel RGB value
     luminosity = (red + green + blue) // 3 # calculate brightness
+    # Print the luminosity value
     print(luminosity)
+
+    # Calculate the index of the note to play based on the luminosity value
     index = ((luminosity + 50) % 256) // 9
+
+    # Check if the previous three notes played were the same, and if so, increment the index
     if len(previous_sounds) > 2:
         if previous_sounds[-1] == index and previous_sounds[-2] == index and previous_sounds[-3] == index:
             index += 1
             index %= len(C4_MAJOR_SCALE)
+
+    # Add the index to the list of previous notes played
     previous_sounds.append(index)
+
+    # Calculate the frequency of the note to play
     freq = C4_MAJOR_SCALE[index]
 
     # Calculate a duration so that the waveform ends near a zero crossing
     samples_per_wave = RATE / freq
     total_samples = int(samples_per_wave * np.round(RATE * 1 / samples_per_wave))
 
+    # Generate a sine wave with the calculated frequency and duration
     t = np.linspace(0, total_samples / RATE, total_samples, endpoint=False)
     signal = np.sin(2 * np.pi * freq * t)
 
+    # Apply a fade-in and fade-out to the waveform
     fade_in = np.linspace(0, 1, int(FADE_DURATION * RATE))
     fade_out = np.linspace(1, 0, int(FADE_DURATION * RATE))
     fade = np.ones_like(signal)
     fade[:len(fade_in)] = fade_in
     fade[-len(fade_out):] = fade_out
     signal *= fade
-    # Apply amplitude
-    #signal *= (blue / 255)
+
+    # Apply the desired amplitude to the waveform
     signal *= AMPLITUDE
+
+    # Add the waveform to the list of audio data
     audio_data.append(signal)
 
-def bresenham_line(x0, y0, x1, y1):
-    result = []
-    for i in range(x0, x1 + 1):
-        result.append((i, y0))
-        if y0 != y1:
-            result.append((i, y1))
-    for i in range(y0 + 1, y1):
-        result.append((x0, i))
-        if x0 != x1:
-            result.append((x1, i))
-    return result
-def resolve_video(video_path):
-    # Open the video file
-    cap = cv2.VideoCapture(video_path)
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    # Get the number of frames in the video
-    num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    # Define a function to generate a list of pixels along a line between two points using Bresenham's line algorithm
+    def bresenham_line(x0, y0, x1, y1):
+        result = []
+        for i in range(x0, x1 + 1):
+            result.append((i, y0))
+            if y0 != y1:
+                result.append((i, y1))
+        for i in range(y0 + 1, y1):
+            result.append((x0, i))
+            if x0 != x1:
+                result.append((x1, i))
+        return result
 
-    # Get the dimensions of the video frames
-    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # Define a function to process the pixels along a line and update the average color for the frame
+    def process_lines(average_colour_for_frame, line, frame):
+        for x, y in line:
+            average_colour_for_frame[0] += frame[y, x, 0]
+            average_colour_for_frame[1] += frame[y, x, 1]
+            average_colour_for_frame[2] += frame[y, x, 2]
 
-    # Create an empty numpy ndarray to hold the video frames
-    video_array = np.empty((num_frames, frame_height, frame_width, 3), dtype=np.uint8)
+    # Define a function to resolve a video file into audio and visual components
+    def resolve_video(video_path):
+        # Open the video file
+        cap = cv2.VideoCapture(video_path)
+        fps = int(cap.get(cv2.CAP_PROP_FPS))
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    # Loop through each frame in the video and add it to the numpy ndarray
-    for i in range(num_frames):
-        ret, frame = cap.read()
-        if ret:
-            video_array[i] = frame
-        else:
-            break
+        # Get the dimensions of the video frames
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    # Release the video capture object
-    cap.release()
+        # Create an empty numpy ndarray to hold the video frames
+        video_array = np.empty((frame_count, frame_height, frame_width, 3), dtype=np.uint8)
 
-    # Assuming that you have already loaded the video_array ndarray
-    num_frames, frame_height, frame_width, _ = video_array.shape
+        # Loop through each frame in the video and add it to the numpy ndarray
+        for i in range(frame_count):
+            ret, frame = cap.read()
+            if ret:
+                video_array[i] = frame
+            else:
+                break
 
-    # Calculate the center point of the ndarray
-    center_x = frame_width // 2
-    center_y = frame_height // 2
-    center_point = (center_x, center_y)
+        # Release the video capture object
+        cap.release()
 
-    print("Center point:", center_point)
-    # line colour parametres
-    R_colour = 0
-    G_colour = 255
-    B_colour = 0
+        # Assuming that you have already loaded the video_array ndarray
+        num_frames, frame_height, frame_width, _ = video_array.shape
 
-    coord = 0
-    sz = frame_height + frame_width
-    c = sz // frame_count + 1
-    print(frame_count, sz, c, fps)
+        # Calculate the center point of the ndarray
+        center_x = frame_width // 2
+        center_y = frame_height // 2
+        center_point = (center_x, center_y)
 
-    average_colour_for_second = [0, 0, 0]
-    number_of_used_lines = 0
-    a = 0
-    gcd_height_width = math.gcd(frame_height, frame_width)
-    deltax = frame_width // gcd_height_width
-    deltay = frame_height // gcd_height_width
-    if 0 == 1:
-        pass
-        #c = frame_count // sz
-    # Loop through each frame in the video array and draw a circle on the center pixel
-    else:
+        print("Center point:", center_point)
+
+        # Define the color of the lines to draw
+        R_colour = 0
+        G_colour = 255
+        B_colour = 0
+
+        # Define some variables for processing the video frames
+        coord = 0
+        sz = frame_height + frame_width
+        c = sz // frame_count + 1
+        print(frame_count, sz, c, fps)
+
+        average_colour_for_second = [0, 0, 0]
+        number_of_used_lines = 0
+        a = 0
+        gcd_height_width = math.gcd(frame_height, frame_width)
+        deltax = frame_width // gcd_height_width
+        deltay = frame_height // gcd_height_width
+
+        # Loop through each frame in the video array and draw lines on the frame
         sp = os.path.sep
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
         out = cv2.VideoWriter(f'videos{sp}output.mp4', fourcc, 30.0, (frame_width, frame_height))
@@ -148,9 +168,6 @@ def resolve_video(video_path):
             number_of_used_lines += 1
             average_colour_for_frame = [0, 0, 0]
             for i in range(c):
-            # Draw a circle on the center pixel of the frame
-                #cv2.circle(frame, center_point, 1, (0, 0, 255), -1)
-
                 # Draw a line from the center point to each corner pixel of the frame
                 x0 = coord * deltax
                 y0 = coord * deltay
@@ -158,31 +175,33 @@ def resolve_video(video_path):
                 y1 = frame_height - coord * deltay - 1
                 process_lines(average_colour_for_frame, bresenham_line(x0, y0, x1, y1), frame)
                 cv2.rectangle(frame, (x0, y0), (x1, y1), (R_colour, G_colour, B_colour), 1)
-                '''or el in bresenham_line(x0, y0, x1, y1):
-                    print(el[0], el[1])'''
-                '''cv2.imshow("Frame", frame)
-                cv2.waitKey(1000//30)'''
+
+            # Update the average color for the second
             average_colour_for_second[0] += average_colour_for_frame[0] // c
             average_colour_for_second[1] += average_colour_for_frame[1] // c
             average_colour_for_second[2] += average_colour_for_frame[2] // c
+
+            # Update the coordinate for the next set of lines to draw
             coord += 1
             coord %= (frame_height // 2 // deltay)
+
+            # If a second has passed, convert the average color to a sound and reset the average color
             if number_of_used_lines % fps == 0:
                 average_colour_for_second[0] //= fps
                 average_colour_for_second[1] //= fps
                 average_colour_for_second[2] //= fps
-                #print(number_of_used_lines)
                 convert_to_sound(average_colour_for_second)
                 average_colour_for_second = [0, 0, 0]
                 a += 1
+
+            # Write the frame to the output video file
             out.write(frame)
 
-            # Release the VideoWriter object
+        # Release the VideoWriter object
+        out.release()
 
-            # Print the output video path
-        print(a)
-        global audio_data
         # Concatenate all the small signals into one signal
+        global audio_data
         audio_data = np.hstack(audio_data)
 
         # Normalize the audio data to 16-bit PCM
@@ -190,9 +209,7 @@ def resolve_video(video_path):
 
         # Save the audio data to a .wav file
         wavio.write("sounds/out.wav", audio_data, RATE)
-        out.release()
 
-def run(video_path):
-    resolve_video(video_path)
-
-
+    # Define a function to run the video resolution process
+    def run(video_path):
+        resolve_video(video_path)
