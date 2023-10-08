@@ -3,17 +3,20 @@ import numpy as np
 import wavio
 import time
 
-##### define  musical parameters
-scale = MIXOLYDIAN_SCALE
+from psonic import *
 
-minPitch = 0  # MIDI pitch (0-127)
-maxPitch = 127
 
-minDuration = 0.8  # duration (1.0 is QN)
-maxDuration = 6.0
+# Constants
+RATE = 44100  # Sample rate (samples/second)
+AMPLITUDE = 0.5  # Constant amplitude
+FADE_DURATION = 0.1  # 100ms fade in and fade out
 
-minVolume = 0  # MIDI velocity (0-127)
-maxVolume = 127
+
+audio_data = []
+brightnesses = []
+
+# C4 Major Scale Frequencies
+C4_MAJOR_SCALE = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]
 def create_video(out):
     pass
 def process_lines(result, line, frame):
@@ -39,25 +42,29 @@ def process_lines(result, line, frame):
 def convert_to_sound(pixels_to_convert):
     print(pixels_to_convert)
     red, green, blue = pixels_to_convert  # get pixel RGB value
+    luminosity = (red + green + blue) // 3  # calculate brightness
+    print(luminosity)
+    index = luminosity // 16
+    freq = C4_MAJOR_SCALE[index]
 
-    luminosity = (red + green + blue) / 3  # calculate brightness
+    # Calculate a duration so that the waveform ends near a zero crossing
+    samples_per_wave = RATE / freq
+    total_samples = int(samples_per_wave * np.round(RATE * 1 / samples_per_wave))
 
-    # map luminosity to pitch (the brighter the pixel, the higher
-    # the pitch) using specified scale
-    pitch = mapScale(luminosity, 0, 255, minPitch, maxPitch, scale)
+    t = np.linspace(0, total_samples / RATE, total_samples, endpoint=False)
+    signal = np.sin(2 * np.pi * freq * t)
 
-    # map red value to duration (the redder the pixel, the longer
-    # the note)
-    #duration = mapValue(red, 0, 255, minDuration, maxDuration)
+    fade_in = np.linspace(0, 1, int(FADE_DURATION * RATE))
+    fade_out = np.linspace(1, 0, int(FADE_DURATION * RATE))
+    fade = np.ones_like(signal)
+    fade[:len(fade_in)] = fade_in
+    fade[-len(fade_out):] = fade_out
+    signal *= fade
 
-    # map blue value to dynamic (the bluer the pixel, the louder
-    # the note)
-    #dynamic = mapValue(blue, 0, 255, minVolume, maxVolume)
+    signal *= AMPLITUDE
 
-    # create note and return it to caller
-    #note = Note(pitch, duration, dynamic)
+    audio_data.append(signal)
 
-    # done sonifying this pixel, so return result'''
 def bresenham_line(x0, y0, x1, y1):
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
@@ -214,4 +221,8 @@ def resolve_video(video_path):
         wavio.write("smooth_audio_v2.wav", audio_data, RATE)
         out.release()
 
-resolve_video("images/Hydra.mp4")
+
+resolve_video("images/saturn.mp4")
+
+resolve_video("images/cosmic_reef.mp4")
+
