@@ -6,6 +6,7 @@ Immerse in the sound of space project made by Anton Kogun, Ivan Osipenko, Sergey
 
 # Installation
 Clone the repository: git clone https://github.com/Anton15K/Nasa-spaceapp-hackathon/tree/main
+or install our release version https://github.com/Anton15K/Nasa-spaceapp-hackathon/releases/tag/v1.0.0
 Install the required dependencies: pip install -r requirements.txt
 # Usage
 Run the script: python interface.py
