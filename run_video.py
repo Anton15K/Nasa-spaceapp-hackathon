@@ -1,4 +1,8 @@
-import mpv
-player = mpv.MPV(ytdl=True)
-player.play('https://youtu.be/DOmdB7D-pUU')
-player.wait_for_playback()
+import combine_sound
+import combine_video
+
+def result_video():
+    sounds = get_sounds()
+    video_name = get_video()
+    combine_sound(sounds)
+    combine_video(video_name, "combined.mp3")

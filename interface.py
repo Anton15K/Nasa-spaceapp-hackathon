@@ -17,6 +17,7 @@ from kivy.uix.videoplayer import VideoPlayer
 from moviepy.editor import *
 import cv2
 import os
+import run_video
 #import video_resolve
 sp = os.path.sep
 
@@ -31,10 +32,7 @@ class Main(Screen):
         except:
             self.ids.vid.hint_text = "Something went wrong"
     def play_video(self):
-        with open("path.txt", "r") as f:
-            path = f.read()
-            clip = VideoFileClip(f"images{sp}{path}")
-            clip.preview(fps = 30)
+        run_video()
 
 
 
