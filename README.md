@@ -17,7 +17,13 @@ Contributions are welcome! Please submit a pull request or open an issue if you 
 See LISENCE
 
 # CREDITS
-Our mentors
+Our mentors:
+Dr. Elena Lyalkova,
+Sarah-Jane-Linley,
+Dr. Fedros Galatopoulos,
+Alexander Prokofyev,
+George Troullias,
+and IMS Private School for amazing conditions!
 
 # How to Work with Our Project
 Install the required dependencies by running pip install -r requirements.txt in your terminal.
