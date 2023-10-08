@@ -5,10 +5,9 @@ Immerse in the sound of space
 Immerse in the sound of space project made by Anton Kogun, Ivan Osipenko, Sergey Rezin
 
 # Installation
-Clone the repository: git clone [insert repository URL here]
+Clone the repository: git clone https://github.com/Anton15K/Nasa-spaceapp-hackathon/tree/main
 Install the required dependencies: pip install -r requirements.txt
 # Usage
-Navigate to the project directory: cd [insert project directory here]
 Run the script: python interface.py
 Follow the on-screen instructions to combine a video and audio file
 Contributing
