@@ -19,6 +19,7 @@ import cv2
 import os
 import run_video
 import video_resolve
+import time
 #import video_resolve
 sp = os.path.sep
 
@@ -26,13 +27,17 @@ class Main(Screen):
     def get_name(self, vid):
         self.ids.vid.text = ""
         try:
+            time.sleep(1)
+            self.ids.vid.hint_text = "Video was added to load, please wait..."
             video_resolve.run(f"videos{sp}{vid}")
-            self.ids.vid.hint_text = "Video was added to load, click load_image to continue"
-            #video_resolve.show_video(vid)
+            self.ids.vid.hint_text = "Video was loaded, click load_image to continue"
         except:
             self.ids.vid.hint_text = "Something went wrong"
     def play_video(self):
+        time.sleep(1)
+        self.ids.vid.hint_text = "Video is creating, please wait..."
         run_video.result_video()
+        self.ids.vid.hint_text = "Video was created, check the folder of the app. You can close this application."
 
 
 

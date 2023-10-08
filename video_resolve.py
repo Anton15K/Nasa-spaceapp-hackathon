@@ -13,7 +13,7 @@ RATE = 44100  # Sample rate (samples/second)
 AMPLITUDE = 1  # Constant amplitude
 FADE_DURATION = 0.1  # 100ms fade in and fade out
 
-
+sp = os.path.sep
 audio_data = []
 brightnesses = []
 
@@ -202,7 +202,7 @@ def resolve_video(video_path):
         audio_data = (audio_data * (2 ** 15 - 1)).astype(np.int16)
 
         # Save the audio data to a .wav file
-        wavio.write("sounds/out.wav", audio_data, RATE)
+        wavio.write(f"sounds{sp}out.wav", audio_data, RATE)
 
 # Define a function to run the video resolution process
 def run(video_path):
