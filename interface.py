@@ -25,12 +25,11 @@ sp = os.path.sep
 class Main(Screen):
     def get_name(self, vid):
         self.ids.vid.text = ""
-        try:
-            video_resolve.run(f"videos{sp}{vid}")
-            self.ids.vid.hint_text = "Video was added to load, click load_image to continue"
+        
+        video_resolve.run(f"videos{sp}{vid}")
+        self.ids.vid.hint_text = "Video was added to load, click load_image to continue"
             #video_resolve.show_video(vid)
-        except:
-            self.ids.vid.hint_text = "Something went wrong"
+        
     def play_video(self):
         run_video.result_video()
 

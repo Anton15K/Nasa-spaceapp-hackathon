@@ -2,12 +2,15 @@ import cv2
 import numpy as np
 import wavio
 import time
+import random
 import os
+import math
+
 
 
 # Constants
 RATE = 44100  # Sample rate (samples/second)
-AMPLITUDE = 0.5  # Constant amplitude
+AMPLITUDE = 1  # Constant amplitude
 FADE_DURATION = 0.1  # 100ms fade in and fade out
 
 
@@ -15,12 +18,9 @@ audio_data = []
 brightnesses = []
 
 # C4 Major Scale Frequencies
-C4_MAJOR_SCALE = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]
-pq = 100
-while pq < 500:
-    C4_MAJOR_SCALE.append(pq)
-    pq += 23.78
+C4_MAJOR_SCALE = [49.7, 66.3, 83.5, 88.5, 111.5, 118.1, 125.1, 140.3, 140.5, 148.8, 157.7, 167.0, 187.5, 198.6, 210.5, 223.0, 250.3, 265.2, 280.9, 297.6, 315.3, 334.1, 354.0, 375.0, 420.9, 446.0, 472.5, 500.6, 561.9]
 C4_MAJOR_SCALE = sorted(C4_MAJOR_SCALE)
+previous_sounds = []
 def create_video(out):
     pass
 def process_lines(result, line, frame):
@@ -46,9 +46,14 @@ def process_lines(result, line, frame):
 def convert_to_sound(pixels_to_convert):
     print(pixels_to_convert)
     red, green, blue = pixels_to_convert  # get pixel RGB value
-    luminosity = (red + green + blue) // 3  # calculate brightness
+    luminosity = (red + green + blue) // 3 # calculate brightness
     print(luminosity)
-    index = luminosity // 4
+    index = ((luminosity + 50) % 256) // 9
+    if len(previous_sounds) > 2:
+        if previous_sounds[-1] == index and previous_sounds[-2] == index and previous_sounds[-3] == index:
+            index += 1
+            index %= len(C4_MAJOR_SCALE)
+    previous_sounds.append(index)
     freq = C4_MAJOR_SCALE[index]
 
     # Calculate a duration so that the waveform ends near a zero crossing
@@ -65,7 +70,7 @@ def convert_to_sound(pixels_to_convert):
     fade[-len(fade_out):] = fade_out
     signal *= fade
     # Apply amplitude
-    signal *= (blue / 255)
+    #signal *= (blue / 255)
     signal *= AMPLITUDE
     audio_data.append(signal)
 
@@ -128,6 +133,9 @@ def resolve_video(video_path):
     average_colour_for_second = [0, 0, 0]
     number_of_used_lines = 0
     a = 0
+    gcd_height_width = math.gcd(frame_height, frame_width)
+    deltax = frame_width // gcd_height_width
+    deltay = frame_height // gcd_height_width
     if 0 == 1:
         pass
         #c = frame_count // sz
@@ -144,10 +152,10 @@ def resolve_video(video_path):
                 #cv2.circle(frame, center_point, 1, (0, 0, 255), -1)
 
                 # Draw a line from the center point to each corner pixel of the frame
-                x0 = coord * 16
-                y0 = coord * 9
-                x1 = frame_width-coord * 16 -1
-                y1 = frame_height - coord * 9 - 1
+                x0 = coord * deltax
+                y0 = coord * deltay
+                x1 = frame_width-coord * deltax -1
+                y1 = frame_height - coord * deltay - 1
                 process_lines(average_colour_for_frame, bresenham_line(x0, y0, x1, y1), frame)
                 cv2.rectangle(frame, (x0, y0), (x1, y1), (R_colour, G_colour, B_colour), 1)
                 '''or el in bresenham_line(x0, y0, x1, y1):
@@ -158,7 +166,7 @@ def resolve_video(video_path):
             average_colour_for_second[1] += average_colour_for_frame[1] // c
             average_colour_for_second[2] += average_colour_for_frame[2] // c
             coord += 1
-            coord %= 40
+            coord %= (frame_height // 2 // deltay)
             if number_of_used_lines % fps == 0:
                 average_colour_for_second[0] //= fps
                 average_colour_for_second[1] //= fps
