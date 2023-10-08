@@ -12,24 +12,36 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.video import Video
+from kivy.uix.videoplayer import VideoPlayer
+
+from moviepy.editor import *
+import cv2
 import os
 #import video_resolve
 sp = os.path.sep
 
 class Main(Screen):
-    def get_name(self, img):
-        self.ids.img.text = ""
+    def get_name(self, vid):
+        self.ids.vid.text = ""
         try:
             with open("path.txt", "w") as f:
-                f.write(img)
-            self.ids.img.hint_text = "Image was added to load, click load_image to continue"
-            #video_resolve.show_video(img)
+                f.write(vid)
+            self.ids.vid.hint_text = "Video was added to load, click load_image to continue"
+            #video_resolve.show_video(vid)
         except:
-            self.ids.img.hint_text = "Something went wrong"
+            self.ids.vid.hint_text = "Something went wrong"
+    def play_video(self):
+        with open("path.txt", "r") as f:
+            path = f.read()
+            clip = VideoFileClip(f"images{sp}{path}")
+            clip.preview(fps = 30)
+
+
 
 
 sm = ScreenManager()
 sm.add_widget(Main(name="main"))
+
 
 
 

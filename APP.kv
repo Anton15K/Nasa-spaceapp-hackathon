@@ -2,6 +2,7 @@
 ScreenManager:
     Main:
 
+
 <Main>:
     name:"main"
 
@@ -15,14 +16,13 @@ ScreenManager:
         Button:
             id: load_img
             text: "Load_img"
-            on_release: root.manager.current ="Load_img"
+            on_release: root.play_video()
         TextInput:
-            id:img
+            id:vid
             hint_text:"location"
         Button:
             id:Submit
             text:"Submit"
-            on_release: root.get_name(root.ids.img.text)
-
+            on_release: root.get_name(root.ids.vid.text)
 
 
