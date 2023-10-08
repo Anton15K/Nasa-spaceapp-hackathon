@@ -1,7 +1,8 @@
 #:kivy 1.4.0
 ScreenManager:
     Main:
-    Load_img:
+
+
 <Main>:
     name:"main"
 
@@ -15,19 +16,13 @@ ScreenManager:
         Button:
             id: load_img
             text: "Load_img"
-            on_release: root.manager.current ="Load_img"
+            on_release: root.play_video()
         TextInput:
-            id:img
+            id:vid
             hint_text:"location"
         Button:
             id:Submit
             text:"Submit"
-            on_release: root.get_name(root.ids.img.text)
+            on_release: root.get_name(root.ids.vid.text)
 
-<Load_img>:
-    name:"Load_img"
-    BoxLayout:
-        orientation:'vertical'
-        spacing: '10dp'
-        id:main
 

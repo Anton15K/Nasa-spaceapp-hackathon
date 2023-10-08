@@ -11,32 +11,36 @@ from kivy.logger import logging
 from kivy.uix.dropdown import DropDown
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
+from kivy.uix.video import Video
+from kivy.uix.videoplayer import VideoPlayer
+
+from moviepy.editor import *
+import cv2
 import os
+import run_video
+#import video_resolve
 sp = os.path.sep
 
 class Main(Screen):
-    def get_name(self, img):
-        self.ids.img.text = ""
+    def get_name(self, vid):
+        self.ids.vid.text = ""
         try:
             with open("path.txt", "w") as f:
-                f.write(img)
-            self.ids.img.hint_text = "Image was added to load, click load_image to continue"
+                f.write(vid)
+            self.ids.vid.hint_text = "Video was added to load, click load_image to continue"
+            #video_resolve.show_video(vid)
         except:
-            self.ids.img.hint_text = "Something went wrong"
+            self.ids.vid.hint_text = "Something went wrong"
+    def play_video(self):
+        run_video()
 
-class Load_img(Screen):
-    def on_pre_enter(self):
-        try:
-            with open("path.txt", "r") as f:
-                pth = f.read()
-                img = Image(source = f"images{sp}{pth}", fit_mode = "fill")
-                self.ids.main.add_widget(img)
-        except:
-            er_m = Label(text = "something went wrong")
-            self.ids.main.add_widget(er_m)
+
+
+
 sm = ScreenManager()
 sm.add_widget(Main(name="main"))
-sm.add_widget(Load_img(name="load_img"))
+
+
 
 
 class MyApp(App):
